@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum ServiceType {
+  WEB
+  SEO
+  MARKETING
+  DESIGN
+  DEVELOPMENT
+  CONSULTING
+  OTHER
+}
+
+enum ServiceStatus {
+  INTERESTED
+  CONVERTED
+  NOT_INTERESTED
+}
+
+enum MessageChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum MessageStatus {
+  SENT
+  FAILED
+  PENDING
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads Lead[]
+}
+
+model Lead {
+  id             String        @id @default(cuid())
+  clientName     String        @map("client_name")
+  email          String?
+  phone          String?
+  whatsapp       String?
+  website        String?
+  address        String?
+  serviceType    ServiceType   @map("service_type")
+  source         String?       // Facebook, Website, Referral, etc.
+  emailSent      Boolean       @default(false) @map("email_sent")
+  whatsappSent   Boolean       @default(false) @map("whatsapp_sent")
+  approachCount  Int           @default(0) @map("approach_count")
+  serviceStatus  ServiceStatus @default(INTERESTED) @map("service_status")
+  notes          String?
+  userId         String        @map("user_id")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     Message[]
+  aiMessages   AiMessage[]
+  templates    Template[]
+
+  @@index([userId])
+  @@index([serviceType])
+  @@index([serviceStatus])
+  @@index([emailSent])
+  @@index([whatsappSent])
+}
+
+model Message {
+  id        String         @id @default(cuid())
+  leadId    String         @map("lead_id")
+  channel   MessageChannel
+  message   String
+  status    MessageStatus  @default(PENDING)
+  sentAt    DateTime?      @map("sent_at")
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([channel])
+  @@index([status])
+}
+
+model AiMessage {
+  id           String         @id @default(cuid())
+  leadId       String         @map("lead_id")
+  channel      MessageChannel
+  aiPrompt     String         @map("ai_prompt")
+  aiResponse   String         @map("ai_response")
+  finalMessage String?        @map("final_message")
+  status       MessageStatus  @default(PENDING)
+  tone         String?        // friendly, professional, casual
+  mode         String?        // cold_outreach, warm_followup, etc.
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([channel])
+  @@index([status])
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  content     String
+  channel     MessageChannel
+  placeholders String[] // ["client_name", "service_type", etc.]
+  leadId      String?  @map("lead_id") // Optional: template can be global or lead-specific
+  userId      String?  @map("user_id") // Optional: template can be user-specific
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  lead Lead? @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([userId])
+}
