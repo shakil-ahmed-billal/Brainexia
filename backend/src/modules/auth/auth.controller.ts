@@ -6,6 +6,7 @@ const authService = new AuthService();
 
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction) {
+
     try {
       const { name, email, password } = req.body;
 

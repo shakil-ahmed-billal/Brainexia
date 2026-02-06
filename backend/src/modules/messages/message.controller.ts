@@ -66,6 +66,36 @@ export class MessageController {
     }
   }
 
+  async bulkSendPersonalized(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        throw new AppError("User not authenticated");
+      }
+
+      const { leadIds, channel, messageTemplate } = req.body;
+
+      if (!leadIds || !Array.isArray(leadIds) || !channel || !messageTemplate) {
+        throw new AppError("leadIds array, channel, and messageTemplate are required");
+      }
+
+      const results = await messageService.bulkSendPersonalized(
+        leadIds,
+        channel,
+        messageTemplate,
+        userId
+      );
+
+      res.json({
+        success: true,
+        data: results,
+        message: "Bulk personalized messages processed",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getMessageHistory(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;

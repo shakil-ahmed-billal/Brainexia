@@ -29,9 +29,9 @@ export default function AiComposerPage() {
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        const response = await api.get("/leads");
+        const response = await api.get("/leads?limit=500");
         if (response.success && response.data) {
-          setLeads(response.data);
+          setLeads(Array.isArray(response.data) ? response.data : []);
         }
       } catch (error) {
         console.error("Failed to fetch leads:", error);
@@ -56,7 +56,8 @@ export default function AiComposerPage() {
       });
 
       if (response.success && response.data) {
-        setAiMessage(response.data.aiResponse);
+        const text = response.data.aiResponse ?? response.data.data?.aiResponse ?? "";
+        setAiMessage(text.trim());
       }
     } catch (error) {
       console.error("Failed to generate message:", error);

@@ -20,16 +20,12 @@ export class TemplateService {
   async getTemplates(userId?: string, leadId?: string) {
     const where: any = {};
 
-    if (userId) {
-      where.userId = userId;
-    }
-
     if (leadId) {
       where.leadId = leadId;
-    }
-
-    // If no filters, get global templates (no userId and no leadId)
-    if (!userId && !leadId) {
+    } else if (userId) {
+      // Return global templates (userId null) OR this user's templates
+      where.OR = [{ userId: null }, { userId }];
+    } else {
       where.userId = null;
       where.leadId = null;
     }

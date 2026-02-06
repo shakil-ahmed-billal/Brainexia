@@ -47,7 +47,7 @@ export class TemplateController {
   async getTemplateById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.userId;
-      const template = await templateService.getTemplateById(req.params.id, userId);
+      const template = await templateService.getTemplateById(req.params.id as any, userId);
 
       res.json({
         success: true,
@@ -66,7 +66,7 @@ export class TemplateController {
       }
 
       const template = await templateService.updateTemplate(
-        req.params.id,
+        req.params.id as any,
         userId,
         req.body
       );
@@ -88,7 +88,7 @@ export class TemplateController {
         throw new AppError("User not authenticated");
       }
 
-      await templateService.deleteTemplate(req.params.id, userId);
+      await templateService.deleteTemplate(req.params.id as any, userId);
 
       res.json({
         success: true,

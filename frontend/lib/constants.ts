@@ -43,3 +43,17 @@ export const LEAD_SOURCES = [
   "Offline",
   "Other",
 ] as const;
+
+/** Placeholders for templates when sending to leads (use in message as {{key}}) */
+export const TEMPLATE_PLACEHOLDERS = [
+  { value: "clientName", label: "Client name" },
+  { value: "email", label: "Email" },
+  { value: "phone", label: "Phone" },
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "website", label: "Website" },
+  { value: "address", label: "Address" },
+  { value: "serviceType", label: "Service type" },
+  { value: "source", label: "Source" },
+  { value: "serviceStatus", label: "Status" },
+  { value: "approachCount", label: "Approach count" },
+] as const;

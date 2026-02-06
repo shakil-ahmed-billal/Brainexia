@@ -51,6 +51,7 @@ Client Information:
 Context: This is a ${modeDescription}.
 
 Requirements:
+- Write a UNIQUE message every time. Vary the opening (e.g. "Hi", "Hello", "Hope you're well"), wording, and structure. Do NOT repeat the same phrases or template.
 - Keep it human-like and non-spammy
 - Personalize based on the client's information
 - Don't use hard sales tactics
@@ -59,7 +60,7 @@ Requirements:
 - Mention their service interest naturally
 - End with a clear but soft call-to-action
 
-Generate the message now:`;
+Generate a fresh, varied message now (output only the message body, no quotes or labels):`;
   }
 
   async generateMessage(data: GenerateMessageData) {
@@ -86,18 +87,20 @@ Generate the message now:`;
           messages: [
             {
               role: "system",
-              content: "You are a professional business communication assistant. Write personalized, human-like messages for client outreach.",
+              content:
+                "You are a professional business communication assistant. Write personalized, human-like messages for client outreach. Each message must be UNIQUE: vary openings, phrasing, and structure. Never output the same message twice.",
             },
             {
               role: "user",
               content: prompt,
             },
           ],
-          temperature: 0.7,
-          max_tokens: channel === "WHATSAPP" ? 200 : 500,
+          temperature: 0.9,
+          max_tokens: channel === "WHATSAPP" ? 200 : 1000,
         });
 
-        aiResponse = completion.choices[0]?.message?.content || "";
+        const raw = completion.choices[0]?.message?.content || "";
+        aiResponse = raw.replace(/^["']|["']$/g, "").trim();
       } catch (error) {
         console.error("OpenAI API error:", error);
         // Fallback to template-based message
